@@ -1,0 +1,19 @@
+# depslib dependency file v1.0
+1641237955 source:c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\roboticarm_steuerung\fuse.c
+	<avr/io.h>
+
+1641571772 source:c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\roboticarm_steuerung\main.c
+	<avr/io.h>
+	<stdlib.h>
+	<stdio.h>
+	<avr/interrupt.h>
+	<util/delay.h>
+	<math.h>
+	"../UART.h"
+	"../UART.c"
+
+1641238583 c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\uart.h
+
+1641238393 c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\uart.c
+	<avr/io.h>
+
