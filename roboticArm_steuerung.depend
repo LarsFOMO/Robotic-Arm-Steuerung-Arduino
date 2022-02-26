@@ -1,0 +1,35 @@
+# depslib dependency file v1.0
+1641237955 source:c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\roboticarm_steuerung\fuse.c
+	<avr/io.h>
+
+1645882611 source:c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\roboticarm_steuerung\main.c
+	<avr/io.h>
+	<stdlib.h>
+	<stdio.h>
+	<avr/interrupt.h>
+	<util/delay.h>
+	<math.h>
+	<string.h>
+	"../UART.h"
+	"../UART.c"
+	"../pwmServo.h"
+	"../pwmServo.c"
+
+1641238583 c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\uart.h
+
+1644782451 c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\uart.c
+	<avr/io.h>
+	<util/delay.h>
+
+1642186801 c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\pwmservo.h
+	<avr/io.h>
+	<stdlib.h>
+	<stdio.h>
+	<avr/interrupt.h>
+	<string.h>
+	<math.h>
+	<util/delay.h>
+
+1644180739 c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\pwmservo.c
+	"pwmServo.h"
+
