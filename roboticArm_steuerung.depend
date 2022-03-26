@@ -2,12 +2,11 @@
 1641237955 source:c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\roboticarm_steuerung\fuse.c
 	<avr/io.h>
 
-1648304195 source:c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\roboticarm_steuerung\main.c
+1648312101 source:c:\users\benutzer1\onedrive\dokumente\schule\automation\projekt 5te klasse\roboticarm_steuerung\main.c
 	<avr/io.h>
 	<stdlib.h>
 	<stdio.h>
 	<avr/interrupt.h>
-	<util/delay.h>
 	<math.h>
 	<string.h>
 	"../UART.h"

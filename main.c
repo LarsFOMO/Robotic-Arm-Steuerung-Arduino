@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
+//#include <util/delay.h>
 #include <math.h>
 #include <string.h>
 #include "../UART.h"
@@ -16,15 +16,19 @@
 #include "../pwmServo.h"
 #include "../pwmServo.c"
 
+uint8_t counter = 115;
 uint8_t enable = 0;
 uint8_t enablex = 0;
 uint8_t enabley = 0;
+uint8_t enableRotate = 0;
 uint8_t i = 0;
 uint8_t j = 0;
+uint8_t r = 0;
 uint8_t xvorzeichen = 0;
 uint8_t yvorzeichen = 0;
 uint8_t xdelay = 0;
 uint8_t ydelay = 0;
+uint8_t rotationdelay = 0;
 float posX = 70;                            // min: 90 - max: 220
 float posY = 100;
 float hypo = 0;                           // min: 40 - max: 230
@@ -39,6 +43,7 @@ ISR(TIMER2_COMPB_vect)
     {
         i++;
         j++;
+        r++;
     }
     if((i >= xdelay) && (enablex == 1))
     {
@@ -56,19 +61,35 @@ ISR(TIMER2_COMPB_vect)
             posY += 1;
         j = 0;
     }
+    if((r >= rotationdelay) && (enableRotate == 1))
+    {
+//        if(PD3 && (counter <= 230))
+//        {
+//            PORTD ^= (1<<PD4);
+//            counter++;
+//        }
+//        else if(!(PD3) && (counter >= 0))
+//        {
+//            PORTD ^= (1<<PD4);
+//            counter--;
+//        }
+        PORTD ^= (1<<PD4);
+        r = 0;
+    }
 
     SREG = sreg;
 }
 
 int main(void)
 {
-    DDRD = 0x60;                                // 0110 0000
+    DDRD = 0x78;//0x60;                                // 0110 0000
     DDRC = 0x00;
     DDRB = 0x06;
 
     // JOYSTICK-VAR
     uint8_t xA1JS;                              // 124
     uint8_t yA1JS;                              // 127
+    uint8_t rotation;
 
     // CALCULATIONS-POS
     float alpha;
@@ -82,7 +103,7 @@ int main(void)
     uint32_t alphaCalc;
     uint32_t betaCalc;
 
-    char str[] = "";
+//    char str[] = "";
 
     // PWM
 //    TCCR0A = 0xA3;
@@ -120,6 +141,15 @@ int main(void)
         while (ADCSRA & (1<<ADSC));
         yA1JS = ADCH;
 
+    // PD2 READ
+        ADMUX = 0x62;                           // Kanal ADC2
+        ADCSRA |= 0x07;
+        ADCSRA |= (1<<ADEN);
+
+        ADCSRA |= (1<<ADSC);
+        while (ADCSRA & (1<<ADSC));
+        rotation = ADCH;
+
     // X-ACHSE
         if(xA1JS > 130)
         {
@@ -156,12 +186,31 @@ int main(void)
         else if((yA1JS < 130) && (yA1JS > 120))
             enabley = 0;
 
+    // ROTATION
+        if(rotation > 130)
+        {
+            rotationdelay = 255-rotation;
+            PORTD &= ~(1<<PD3);                    // Neg.
+            enable = 1;
+            enableRotate = 1;
+        }
+        else if(rotation < 120)
+        {
+            rotationdelay = rotation;
+            PORTD |= (1<<PD3);
+            enable = 1;
+            enableRotate = 1;
+        }
+        else if((rotation < 130) && (rotation > 120))
+            enableRotate = 0;
+
         else
             enable = 0;
 
     // CONTROLL SPEED
         xdelay = ((xdelay*2)/15)+3;
         ydelay = ((ydelay*2)/15)+3;     //30
+        rotationdelay = ((rotationdelay*2)/31)+4;
 
     // CALCULATIONS - INVERTED KINEMATICS
         hypo = (posX*posX) + (posY*posY);
