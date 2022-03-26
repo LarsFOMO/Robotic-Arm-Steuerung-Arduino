@@ -1,6 +1,5 @@
 #include <avr/io.h>
-
-
+#include <util/delay.h>
 
 void init_usart(void)
 
@@ -13,7 +12,6 @@ void init_usart(void)
                                                 // Asynchrone Übertragung (UMSEL00=0 und UMSEL01=0);
 }
 
-
 void _putch(unsigned char ch)
 {
     while(!(UCSR0A & (1<<UDRE0)));
@@ -21,9 +19,8 @@ void _putch(unsigned char ch)
 }
 
 void _puts(char st[])
-
 {
-    uint8_t i=0;
+    uint8_t i=0;           //uint8_t
     while(st[i])
         _putch(st[i++]);
 
