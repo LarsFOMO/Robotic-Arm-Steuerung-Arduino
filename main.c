@@ -22,18 +22,23 @@ uint8_t enablex = 0;
 uint8_t enabley = 0;
 uint8_t enableRotate = 0;
 uint8_t enableg = 0;
+uint8_t enablegOC = 0;
 uint8_t i = 0;
 uint8_t j = 0;
 uint8_t r = 0;
 uint16_t v = 0;
+uint16_t m = 0;
 uint8_t xvorzeichen = 0;
 uint8_t yvorzeichen = 0;
 uint8_t gvorzeichen = 0;
+uint8_t gOCvorzeichen = 0;
 uint8_t xdelay = 0;
 uint8_t ydelay = 0;
 uint8_t rotationdelay = 0;
 uint16_t gdelay = 0;
+uint16_t gOCdelay = 0;
 int16_t winkelg = 90;
+uint8_t open = 18;
 float posX = 70;                            // min: 90 - max: 220
 float posY = 100;
 float hypo = 0;                           // min: 40 - max: 230
@@ -51,10 +56,11 @@ ISR(TIMER2_COMPB_vect)
         j++;
         r++;
         v++;
+        m++;
     }
     if((i >= xdelay) && (enablex == 1))
     {
-        if((xvorzeichen == 1) && (posX >= 10) && (hypo >= 70))//70))
+        if((xvorzeichen == 1) && (posX >= 1) && (hypo >= 80))//70))
             posX -= 1;
         else if((xvorzeichen == 0) && (hypo <= 319))
             posX += 1;
@@ -62,7 +68,7 @@ ISR(TIMER2_COMPB_vect)
     }
     if((j >= ydelay) && (enabley == 1))
     {
-        if((yvorzeichen == 1) && (posY >= 1) && (hypo >= 90))
+        if((yvorzeichen == 1) && (posY >= 1) && (hypo >= 80))
             posY -= 1;
         else if((yvorzeichen == 0) && (hypo <= 319))
             posY += 1;
@@ -86,6 +92,14 @@ ISR(TIMER2_COMPB_vect)
             winkelg += 1;
         v = 0;
     }
+    if((m >= gOCdelay) && (enablegOC == 1))
+    {
+        if((gOCvorzeichen == 1) && (open > 10))             // 0!!
+            open -= 1;
+        else if((gOCvorzeichen == 0) && (open <= 22))
+            open += 1;
+        m = 0;
+    }
 
     SREG = sreg;
 }
@@ -101,6 +115,7 @@ int main(void)
     uint8_t yA1JS;                              // 127
     uint8_t rotation;
     uint8_t grapper;
+    uint8_t grapperOPEN;
 
     // CALCULATIONS-POS
     float alpha;
@@ -177,6 +192,15 @@ int main(void)
         while (ADCSRA & (1<<ADSC));
         grapper = ADCH;
 
+    // PD5 READ
+        ADMUX = 0x65;                           // Kanal ADC5
+        ADCSRA |= 0x07;
+        ADCSRA |= (1<<ADEN);
+
+        ADCSRA |= (1<<ADSC);
+        while (ADCSRA & (1<<ADSC));
+        grapperOPEN = ADCH;
+
     // X-ACHSE
         if(xA1JS > 130)
         {
@@ -251,14 +275,33 @@ int main(void)
         else if((grapper < 130) && (grapper > 120))
             enableg = 0;
 
+    // GRAPPER OPEN/CLOSE
+        if(grapperOPEN > 130)
+        {
+            gOCdelay = 255-grapperOPEN;
+            gOCvorzeichen = 1;                    // Neg.
+            enable = 1;
+            enablegOC = 1;
+        }
+        else if(grapperOPEN < 120)
+        {
+            gOCdelay = grapperOPEN;
+            gOCvorzeichen = 0;
+            enable = 1;
+            enablegOC = 1;
+        }
+        else if((grapperOPEN < 130) && (grapperOPEN > 120))
+            enablegOC = 0;
+
         else
             enable = 0;
 
     // CONTROLL SPEED
-        xdelay = ((xdelay*2)/20)+3;
-        ydelay = ((ydelay*2)/20)+3;     //30
+        xdelay = ((xdelay*2)/15)+3;
+        ydelay = ((ydelay*2)/15)+3;     //30
         rotationdelay = ((rotationdelay*2)/31)+4;
-        gdelay = ((gdelay*2)/20)+4;
+        gdelay = ((gdelay*2)/15)+4;
+        gOCdelay = (gOCdelay*10)+30;
 
     // CALCULATIONS - INVERTED KINEMATICS
         hypo = (posX*posX) + (posY*posY);
@@ -295,6 +338,7 @@ int main(void)
         FrequencyPWM(50, betaPWM, 'A');          // mittleres Glied beta: 180: 1000 - 90: 3000 - -90: 4500
         FrequencyPWM(50, alphaPWM, 'B');         // unteres Glied alpha: 90+: 4000 - 90: 2850 - 0: 1000
         OCR0A = winkelAUS;
+        OCR0B = open;
         //Greifer 10 offen / 23 zu
     }
 
