@@ -16,7 +16,7 @@
 #include "../pwmServo.h"
 #include "../pwmServo.c"
 
-uint16_t counter = 295;
+uint16_t counter = 0;//= 255;
 uint8_t enable = 0;
 uint8_t enablex = 0;
 uint8_t enabley = 0;
@@ -25,7 +25,7 @@ uint8_t enableg = 0;
 uint8_t enablegOC = 0;
 uint8_t i = 0;
 uint8_t j = 0;
-uint8_t r = 0;
+uint16_t r = 0;
 uint16_t v = 0;
 uint16_t m = 0;
 uint8_t xvorzeichen = 0;
@@ -34,7 +34,7 @@ uint8_t gvorzeichen = 0;
 uint8_t gOCvorzeichen = 0;
 uint8_t xdelay = 0;
 uint8_t ydelay = 0;
-uint8_t rotationdelay = 0;
+uint16_t rotationdelay = 0;
 uint16_t gdelay = 0;
 uint16_t gOCdelay = 0;
 int16_t winkelg = 90;
@@ -76,11 +76,11 @@ ISR(TIMER2_COMPB_vect)
     }
     if((r >= rotationdelay) && (enableRotate == 1))
     {
-        if(counter >= 600)
-            counter = 600;
-        if(counter <= 10)
+        if(counter >= 410)
+            counter = 410;
+        else if(counter <= 10)
             counter = 10;
-        if((counter < 600) && (counter > 10))
+        else if((counter < 410) && (counter > 10))
             PORTD ^= (1<<PD4);
         r = 0;
     }
@@ -134,6 +134,7 @@ int main(void)
     float alphaTGrad;
     uint16_t alpha01;
     uint16_t alpha02;
+    counter = 205;//255;
 
     char str[] = "";
 
