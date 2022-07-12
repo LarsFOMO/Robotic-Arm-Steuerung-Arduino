@@ -76,17 +76,17 @@ ISR(TIMER2_COMPB_vect)
     }
     if((r >= rotationdelay) && (enableRotate == 1))
     {
-        if(counter >= 410)
-            counter = 410;
-        else if(counter <= 10)
-            counter = 10;
-        else if((counter < 410) && (counter > 10))
-            PORTD ^= (1<<PD4);
+//        if(counter >= 410)                          //
+//            counter = 410;
+//        else if(counter <= 10)
+//            counter = 10;
+//        else if((counter < 410) && (counter > 10))  //
+        PORTD ^= (1<<PD4);
         r = 0;
     }
     if((v >= gdelay) && (enableg == 1))
     {
-        if((gvorzeichen == 1) && (winkelg > 40))             // 0!!
+        if((gvorzeichen == 1) && (winkelg > 20))             // 0!!
             winkelg -= 1;
         else if((gvorzeichen == 0) && (winkelg < 150))
             winkelg += 1;
@@ -203,95 +203,97 @@ int main(void)
         grapperOPEN = ADCH;
 
     // X-ACHSE
-        if(xA1JS > 130)
+        if(xA1JS > 140)
         {
             xdelay = 255-xA1JS;
+            xvorzeichen = 1;                    // Neg.
+            enable = 1;
+            enablex = 1;
+        }
+        else if(xA1JS < 110)
+        {
+            xdelay = xA1JS;
             xvorzeichen = 0;
             enable = 1;
             enablex = 1;
         }
-        else if(xA1JS < 120)
-        {
-            xdelay = xA1JS;
-            xvorzeichen = 1;                     // Neg.
-            enable = 1;
-            enablex = 1;
-        }
-        else if((xA1JS < 130) && (xA1JS > 120))
+        else if((xA1JS < 140) && (xA1JS > 110))
             enablex = 0;
 
     // Y-ACHSE
-        if(yA1JS > 130)
+        if(yA1JS > 140)
         {
             ydelay = 255-yA1JS;
             yvorzeichen = 1;                    // Neg.
             enable = 1;
             enabley = 1;
         }
-        else if(yA1JS < 120)
+        else if(yA1JS < 110)
         {
             ydelay = yA1JS;
             yvorzeichen = 0;
             enable = 1;
             enabley = 1;
         }
-        else if((yA1JS < 130) && (yA1JS > 120))
+        else if((yA1JS < 140) && (yA1JS > 110))
             enabley = 0;
 
     // ROTATION
-        if(rotation > 130)
+        if(rotation > 140)
         {
             rotationdelay = 255-rotation;
             PORTD &= ~(1<<PD3);                    // Neg.
             enable = 1;
             enableRotate = 1;
-            counter++;
+            //counter++;
         }
-        else if(rotation < 120)
+        else if(rotation < 110)
         {
             rotationdelay = rotation;
             PORTD |= (1<<PD3);
             enable = 1;
             enableRotate = 1;
-            counter--;
+            //counter--;
         }
-        else if((rotation < 130) && (rotation > 120))
+        else if((rotation < 140) && (rotation > 110))
             enableRotate = 0;
 
     // GRAPPER
-        if(grapper > 130)
+        if(grapper > 140)
         {
             gdelay = 255-grapper;
             gvorzeichen = 1;
             enable = 1;
             enableg = 1;
         }
-        else if(grapper < 120)
+        else if(grapper < 110)
         {
             gdelay = grapper;
             gvorzeichen = 0;
             enable = 1;
             enableg = 1;
         }
-        else if((grapper < 130) && (grapper > 120))
+        else if((grapper < 140) && (grapper > 110))
             enableg = 0;
 
     // GRAPPER OPEN/CLOSE
-        if(grapperOPEN > 130)
+        if(grapperOPEN > 140)
         {
             gOCdelay = 255-grapperOPEN;
             gOCvorzeichen = 1;                    // Neg.
             enable = 1;
             enablegOC = 1;
         }
-        else if(grapperOPEN < 120)
+        else if(grapperOPEN < 110)
         {
             gOCdelay = grapperOPEN;
+            if((grapperOPEN <= 25) && (grapperOPEN >= 15))
+                gOCdelay = grapperOPEN-15;
             gOCvorzeichen = 0;
             enable = 1;
             enablegOC = 1;
         }
-        else if((grapperOPEN < 130) && (grapperOPEN > 120))
+        else if((grapperOPEN < 140) && (grapperOPEN > 110))
             enablegOC = 0;
 
         else
@@ -302,7 +304,7 @@ int main(void)
         ydelay = ((ydelay*2)/15)+3;     //30
         rotationdelay = ((rotationdelay*2)/31)+4;
         gdelay = ((gdelay*2)/15)+4;
-        gOCdelay = (gOCdelay*10)+30;
+        gOCdelay = (gOCdelay*5)+15;
 
     // CALCULATIONS - INVERTED KINEMATICS
         hypo = (posX*posX) + (posY*posY);
@@ -341,8 +343,10 @@ int main(void)
         OCR0A = winkelAUS;
         OCR0B = open;
         //Greifer 10 offen / 23 zu
+//        itoa(grapperOPEN,str,10);
+//        _puts(str);
+//        _delay_ms(10);
     }
-
     return 0;
 }
 
